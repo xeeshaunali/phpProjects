@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Bootstrap Table with Search and Pagination</title>
+    <!-- Include Bootstrap CSS from CDN -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Include jQuery from CDN -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!-- Include Bootstrap JS from CDN -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+        body {
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="mb-4">Table with Search and Pagination</h2>
+
+    <!-- Search input -->
+    <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search">
+
+    <!-- Table -->
+    <table class="table table-bordered" id="dataTable">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        <!-- Manually entered records, you can modify this section as needed -->
+        <tr>
+            <td>1</td>
+            <td>John Doe</td>
+            <td>john.doe@example.com</td>
+            <td>123-456-7890</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Jane Smith</td>
+            <td>jane.smith@example.com</td>
+            <td>987-654-3210</td>
+        </tr>
+        <!-- Add more rows as needed -->
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <ul class="pagination" id="pagination"></ul>
+
+    <!-- Script for dynamic record generation and pagination -->
+    <script>
+        let recordsPerPage = 4;
+        let currentPage = 1;
+
+        function paginate(items, currentPage, perPage) {
+            const start = (currentPage - 1) * perPage;
+            const end = start + perPage;
+            return items.slice(start, end);
+        }
+
+        function updateTableRows() {
+            const rows = $('#dataTable tbody tr');
+            const paginatedRows = paginate(rows, currentPage, recordsPerPage);
+
+            rows.hide();
+            paginatedRows.show();
+        }
+
+        function updatePaginationLinks(totalPages) {
+            const pagination = $('#pagination');
+            pagination.empty();
+
+            pagination.append(`<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Previous</a>
+                              </li>`);
+
+            for (let i = 1; i <= totalPages; i++) {
+                pagination.append(`<li class="page-item ${currentPage === i ? 'active' : ''}">
+                                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                                  </li>`);
+            }
+
+            pagination.append(`<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Next</a>
+                              </li>`);
+        }
+
+        function changePage(newPage) {
+            const totalPages = Math.ceil($('#dataTable tbody tr').length / recordsPerPage);
+            currentPage = Math.min(Math.max(newPage, 1), totalPages);
+
+            updateTableRows();
+            updatePaginationLinks(totalPages);
+        }
+
+        $(document).ready(function () {
+            updateTableRows();
+            updatePaginationLinks(Math.ceil($('#dataTable tbody tr').length / recordsPerPage));
+        });
+
+        $('#searchInput').on('input', function () {
+            const searchTerm = $(this).val().toLowerCase();
+            const rows = $('#dataTable tbody tr');
+
+            rows.filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(searchTerm) > -1);
+            });
+
+            updatePaginationLinks(Math.ceil(rows.filter(':visible').length / recordsPerPage));
+        });
+    </script>
+</div>
+
+</body>
+</html>
